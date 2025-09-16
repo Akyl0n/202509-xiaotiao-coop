@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
+const { generateVerificationCode, sendVerificationEmail, sendPasswordResetEmail } = require('./email.interface');
 
 dotenv.config();
 
@@ -14,13 +15,19 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 生成验证码
-const generateVerificationCode = () => {
+/**
+ * 实现生成验证码接口
+ * @implements {generateVerificationCode}
+ */
+function generateVerificationCodeImpl() {
   return Math.floor(100000 + Math.random() * 900000).toString();
-};
+}
 
-// 发送验证码邮件
-const sendVerificationEmail = async (email, code) => {
+/**
+ * 实现发送验证码邮件接口
+ * @implements {sendVerificationEmail}
+ */
+async function sendVerificationEmailImpl(email, code) {
   try {
     await transporter.sendMail({
       from: process.env.SMTP_USER,
@@ -38,10 +45,13 @@ const sendVerificationEmail = async (email, code) => {
     console.error('发送邮件失败:', error);
     return false;
   }
-};
+}
 
-// 发送密码重置邮件
-const sendPasswordResetEmail = async (email, resetToken) => {
+/**
+ * 实现发送密码重置邮件接口
+ * @implements {sendPasswordResetEmail}
+ */
+async function sendPasswordResetEmailImpl(email, resetToken) {
   try {
     await transporter.sendMail({
       from: process.env.SMTP_USER,
@@ -60,10 +70,10 @@ const sendPasswordResetEmail = async (email, resetToken) => {
     console.error('发送重置密码邮件失败:', error);
     return false;
   }
-};
+}
 
 module.exports = {
-  generateVerificationCode,
-  sendVerificationEmail,
-  sendPasswordResetEmail,
+  generateVerificationCode: generateVerificationCodeImpl,
+  sendVerificationEmail: sendVerificationEmailImpl,
+  sendPasswordResetEmail: sendPasswordResetEmailImpl,
 };
